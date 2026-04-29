@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-journal-bookmark-fill text-primary fs-3"></i>
+            <h4 class="mb-0 fw-bold title-text">Study Planner</h4>
+        </div>
+        <ul class="nav-links mt-4">
+            <li class="active" data-view="view-dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</li>
+            <li data-view="view-schedule"><i class="bi bi-calendar3"></i> Schedule</li>
+            <li data-view="view-analytics"><i class="bi bi-bar-chart-fill"></i> Analytics</li>
+            <li data-view="view-notes"><i class="bi bi-card-text"></i> Notes</li>
+        </ul>
+        <div class="sidebar-footer mt-auto">
+            <div class="streak-box mb-3 text-center">
+                <i class="bi bi-fire text-danger fs-4 mb-1 d-block"></i>
+                <span id="streakCount" class="fw-bold">0 Day Streak</span>
+            </div>
+            <button class="btn btn-theme w-100 mb-2" id="darkModeToggle">
+                <i class="bi bi-sun-fill"></i> Light Mode
+            </button>
+            <button class="btn btn-outline-danger w-100" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-view">
+
+        <!-- ===== VIEW: DASHBOARD ===== -->
+        <div id="view-dashboard" class="view active-view">
+            <header class="top-header mb-4">
+                <div>
+                    <h2 class="fw-bold m-0 header-title" id="greetingTitle">Dashboard</h2>
+                    <p class="text-muted m-0">Here's your study overview for today.</p>
+                </div>
+                <button class="btn btn-primary rounded-pill px-4" id="aiRecommendBtn">
+                    <i class="bi bi-magic"></i> Auto-Schedule
+                </button>
+            </header>
+
+            <div class="row g-4">
+                <!-- Timer -->
+                <div class="col-lg-4">
+                    <div class="clean-card text-center">
+                        <h6 class="card-subtitle mb-4 text-muted fw-bold text-uppercase"><i class="bi bi-stopwatch"></i> Focus Timer</h6>
+                        <h1 class="display-1 fw-bold timer-text mb-4" id="timeDisplay">25:00</h1>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-primary px-4 rounded-pill fw-bold" id="startTimerBtn">Start</button>
+                            <button class="btn btn-light px-4 rounded-pill fw-bold text-dark border" id="resetTimerBtn">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Summary Stats -->
+                <div class="col-lg-8">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="clean-card text-center py-4">
+                                <h2 class="fw-bold text-primary mb-1" id="statTotal">0</h2>
+                                <p class="text-muted mb-0 small fw-bold">Total Tasks</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="clean-card text-center py-4">
+                                <h2 class="fw-bold text-success mb-1" id="statDone">0</h2>
+                                <p class="text-muted mb-0 small fw-bold">Completed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="clean-card text-center py-4">
+                                <h2 class="fw-bold text-warning mb-1" id="statHours">0</h2>
+                                <p class="text-muted mb-0 small fw-bold">Est. Hours</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Upcoming Tasks Preview -->
+                    <div class="clean-card">
+                        <h6 class="card-subtitle text-muted fw-bold text-uppercase mb-3"><i class="bi bi-lightning-fill text-warning"></i> High Priority Tasks</h6>
+                        <div id="dashboardTaskPreview"><p class="text-muted small">Loading...</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== VIEW: SCHEDULE ===== -->
+        <div id="view-schedule" class="view">
+            <header class="top-header mb-4">
+                <div>
+                    <h2 class="fw-bold m-0 header-title">Schedule</h2>
+                    <p class="text-muted m-0">Manage all your tasks and deadlines.</p>
+                </div>
+                <button class="btn btn-outline-primary rounded-pill px-4" id="syncCalendarBtn">
+                    <i class="bi bi-calendar-arrow-down"></i> Sync Calendar
+                </button>
+            </header>
+            <div class="row g-4">
+                <!-- Add Task Form -->
+                <div class="col-lg-4">
+                    <div class="clean-card">
+                        <h6 class="card-subtitle mb-4 text-muted fw-bold text-uppercase"><i class="bi bi-plus-circle"></i> Add Task</h6>
+                        <form id="taskForm">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Title</label>
+                                <input type="text" class="form-control custom-input" id="title" required placeholder="What are you studying?">
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-8">
+                                    <label class="form-label text-muted small fw-bold">Subject</label>
+                                    <input type="text" class="form-control custom-input" id="subject" required placeholder="e.g. Science">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label text-muted small fw-bold">Hours</label>
+                                    <input type="number" step="0.5" class="form-control custom-input" id="estimatedHours" required value="1">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-4">
+                                <div class="col-7">
+                                    <label class="form-label text-muted small fw-bold">Deadline</label>
+                                    <input type="date" class="form-control custom-input" id="deadline" required>
+                                </div>
+                                <div class="col-5">
+                                    <label class="form-label text-muted small fw-bold">Priority</label>
+                                    <select class="form-select custom-input" id="priority">
+                                        <option value="High">High</option>
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Save Task</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Full Task List -->
+                <div class="col-lg-8">
+                    <div class="clean-card" style="min-height: 400px;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="card-subtitle text-muted fw-bold text-uppercase m-0"><i class="bi bi-list-check"></i> All Tasks</h6>
+                            <div id="aiLoadingOverlay2" class="d-none"><span class="spinner-border spinner-border-sm text-primary"></span> Sorting...</div>
+                        </div>
+                        <div id="taskList"><div class="text-center text-muted py-5">Loading tasks...</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== VIEW: ANALYTICS ===== -->
+        <div id="view-analytics" class="view">
+            <header class="top-header mb-4">
+                <div>
+                    <h2 class="fw-bold m-0 header-title">Analytics</h2>
+                    <p class="text-muted m-0">Track your performance and study habits.</p>
+                </div>
+            </header>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="clean-card mb-4">
+                        <h6 class="card-subtitle text-muted fw-bold text-uppercase mb-3"><i class="bi bi-graph-up"></i> Task Completion Overview</h6>
+                        <canvas id="progressChart" height="120"></canvas>
+                    </div>
+                    <div class="clean-card">
+                        <h6 class="card-subtitle text-muted fw-bold text-uppercase mb-3"><i class="bi bi-clock-history"></i> Study Hours by Subject</h6>
+                        <canvas id="subjectChart" height="120"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="clean-card mb-4 text-center py-4">
+                        <h2 class="fw-bold text-primary mb-1" id="analyticsCompletion">0%</h2>
+                        <p class="text-muted mb-0 fw-bold">Completion Rate</p>
+                    </div>
+                    <div class="clean-card mb-4 text-center py-4">
+                        <h2 class="fw-bold text-success mb-1" id="analyticsDone">0</h2>
+                        <p class="text-muted mb-0 fw-bold">Tasks Done</p>
+                    </div>
+                    <div class="clean-card text-center py-4">
+                        <h2 class="fw-bold text-warning mb-1" id="analyticsHrs">0h</h2>
+                        <p class="text-muted mb-0 fw-bold">Total Study Hours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== VIEW: NOTES ===== -->
+        <div id="view-notes" class="view">
+            <header class="top-header mb-4">
+                <div>
+                    <h2 class="fw-bold m-0 header-title">Notes & Flashcards</h2>
+                    <p class="text-muted m-0">Jot down key points and study reminders.</p>
+                </div>
+            </header>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="clean-card" style="min-height: 500px; display: flex; flex-direction: column;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-subtitle text-muted fw-bold text-uppercase m-0"><i class="bi bi-sticky"></i> Study Notes</h6>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill" id="clearNotesBtn"><i class="bi bi-trash"></i> Clear</button>
+                        </div>
+                        <textarea id="notesArea" class="form-control custom-input flex-grow-1" placeholder="Type your notes here. Everything saves automatically..." style="resize: none; min-height: 420px;"></textarea>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="clean-card mb-4">
+                        <h6 class="card-subtitle text-muted fw-bold text-uppercase mb-3"><i class="bi bi-card-text"></i> Quick Flashcard</h6>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Question / Term</label>
+                            <input type="text" id="flashQ" class="form-control custom-input" placeholder="e.g. What is osmosis?">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Answer / Definition</label>
+                            <textarea id="flashA" class="form-control custom-input" rows="3" placeholder="Movement of water through a membrane..."></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100 rounded-pill fw-bold mb-3" id="saveFlashcardBtn">Save Flashcard</button>
+                    </div>
+                    <div class="clean-card">
+                        <h6 class="card-subtitle text-muted fw-bold text-uppercase mb-3"><i class="bi bi-collection"></i> My Flashcards</h6>
+                        <div id="flashcardList"><p class="text-muted small">No flashcards yet.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
